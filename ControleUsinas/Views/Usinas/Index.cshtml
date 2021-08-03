@@ -67,24 +67,31 @@
     var botaoProximoDesativado = !Model.TemProximaPagina ? "disabled" : string.Empty;
 }
 
-<select name="tamanhoPorPagina" asp-items="@((List<SelectListItem>)ViewData["ListaTamanhosPaginas"])"></select>
+<form asp-action="@nameof(UsinasController.Index)" method="get">
+    <div class="form-actions no-color">
+        <select name="tamanhoPorPagina" asp-items="@((List<SelectListItem>)ViewData["ListaTamanhosPaginas"])"></select>
+        <input type="submit" value="Recarregar" class="btn" style="background-color: #5f9fe4" />
 
-<a asp-action="Index"
-   asp-route-ordenador="@ViewData["OrdenadorAtual"]"
-   asp-route-paginaAtual="@(Model.PaginaAtual - 1)"
-   asp-route-filtroFornecedorAtual="@ViewData["FornecedorFiltroAtual"]"
-   asp-route-filtroUCAtual="@ViewData["UCFiltroAtual"]"
-   asp-route-filtroAtivoAtual="@ViewData["AtivoFiltroAtual"]"
-   class="btn btn-default @botaoAnteriorDesativado" style="background-color: #5f9fe4">
-    <
-</a>
+        <a asp-action="@nameof(UsinasController.Index)"
+           asp-route-ordenador="@ViewData["OrdenadorAtual"]"
+           asp-route-paginaAtual="@(Model.PaginaAtual - 1)"
+           asp-route-filtroFornecedorAtual="@ViewData["FornecedorFiltroAtual"]"
+           asp-route-filtroUCAtual="@ViewData["UCFiltroAtual"]"
+           asp-route-filtroAtivoAtual="@ViewData["AtivoFiltroAtual"]"
+           asp-route-tamanhoPorPagina="@ViewData["TamanhoPorPagina"]"
+           class="btn btn-default @botaoAnteriorDesativado" style="background-color: #5f9fe4">
+            <
+        </a>
 
-<a asp-action="Index"
-   asp-route-ordenador="@ViewData["OrdenadorAtual"]"
-   asp-route-paginaAtual="@(Model.PaginaAtual + 1)"
-   asp-route-filtroFornecedorAtual="@ViewData["FornecedorFiltroAtual"]"
-   asp-route-filtroUCAtual="@ViewData["UCFiltroAtual"]"
-   asp-route-filtroAtivoAtual="@ViewData["AtivoFiltroAtual"]"
-   class="btn btn-default @botaoProximoDesativado" style="background-color: #5f9fe4">
-    >
-</a>
+        <a asp-action="@nameof(UsinasController.Index)"
+           asp-route-ordenador="@ViewData["OrdenadorAtual"]"
+           asp-route-paginaAtual="@(Model.PaginaAtual + 1)"
+           asp-route-filtroFornecedorAtual="@ViewData["FornecedorFiltroAtual"]"
+           asp-route-filtroUCAtual="@ViewData["UCFiltroAtual"]"
+           asp-route-filtroAtivoAtual="@ViewData["AtivoFiltroAtual"]"
+           asp-route-tamanhoPorPagina="@ViewData["TamanhoPorPagina"]"
+           class="btn btn-default @botaoProximoDesativado" style="background-color: #5f9fe4">
+            >
+        </a>
+    </div>
+</form>

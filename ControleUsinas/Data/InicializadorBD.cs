@@ -46,6 +46,21 @@ namespace ControleUsinas.Data
                         Fornecedor = "Unisol",
                         UC = "42953014",
                     },
+                    new Usina
+                    {
+                        Fornecedor = "Unisolare",
+                        UC = "42953015",
+                    },
+                    new Usina
+                    {
+                        Fornecedor = "Voltare",
+                        UC = "42953016",
+                    },
+                    new Usina
+                    {
+                        Fornecedor = "Generator",
+                        UC = "42953017",
+                    },
                 };
 
                 contexto.Usinas.AddRange(usinas);

@@ -43,14 +43,14 @@ namespace ControleUsinas
             };
             var listaTamanhosPaginas = new List<SelectListItem>
             {
+                new SelectListItem { Value = "5", Text = "5", Selected = false },
                 new SelectListItem { Value = "10", Text = "10", Selected = false },
                 new SelectListItem { Value = "20", Text = "20", Selected = false },
-                new SelectListItem { Value = "30", Text = "30", Selected = false },
             };
 
             if (tamanhoPorPagina == 0)
             {
-                tamanhoPorPagina = 10;
+                tamanhoPorPagina = 5;
             }
             if (paginaAtual == 0)
             {
@@ -59,6 +59,7 @@ namespace ControleUsinas
 
             listaTamanhosPaginas.First(i => i.Value.Equals(tamanhoPorPagina.ToString())).Selected = true;
             this.ViewData["ListaTamanhosPaginas"] = listaTamanhosPaginas;
+            this.ViewData["TamanhoPorPagina"] = tamanhoPorPagina;
 
             var usinas = this._context.Usinas.AsQueryable();
 
@@ -136,6 +137,12 @@ namespace ControleUsinas
         {
             if (this.ModelState.IsValid)
             {
+                if (this._context.Usinas.Any(u => u.Fornecedor.Equals(usina.Fornecedor) && u.UC.Equals(usina.UC)))
+                {
+                    this.ModelState.AddModelError(string.Empty, "Não é possível cadastrar uma usina duplicada.");
+                    return this.View(usina);
+                }
+
                 try
                 {
                     this._context.Add(usina);
