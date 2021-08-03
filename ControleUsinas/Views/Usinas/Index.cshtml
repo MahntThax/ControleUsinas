@@ -1,48 +1,90 @@
-﻿@model IEnumerable<ControleUsinas.Models.Usina>
+﻿@using ControleUsinas.Models;
+@using ControleUsinas.Helpers;
+@model PagingHelper<Usina>
 
 @{
     ViewData["Title"] = "Index";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h1>Index</h1>
+<h1>Lista de usinas</h1>
 
+<form asp-action="@nameof(UsinasController.Index)" method="get">
+    <div class="form-actions no-color">
+        <p>
+            Procurar por fornecedor: <input type="text" name="filtroFornecedor" value="@ViewData["FornecedorFiltroAtual"]" />
+            Procurar por UC: <input type="text" name="filtroUC" value="@ViewData["UCFiltroAtual"]" />
+            Ativo: <select name="filtroAtivo" asp-items="@((List<SelectListItem>)ViewData["ListaFiltroAtivo"])"></select>
+            <input type="submit" value="Filtrar lista" class="btn" style="background-color: #5f9fe4" />
+        </p>
+    </div>
+</form>
 <p>
-    <a asp-action="Create">Create New</a>
+    <a asp-action="Create" class="btn" style="background-color: #5f9fe4">Novo cadastro</a>
 </p>
 <table class="table">
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.Ativo)
+                <a asp-action="@nameof(UsinasController.Index)" asp-route-ordenador="@ViewData["FornecedorOrdenador"]" asp-route-filtroFornecedorAtual="@ViewData["FornecedorFiltroAtual"]">
+                    @nameof(Usina.Fornecedor)
+                </a>
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Fornecedor)
+                <a asp-action="@nameof(UsinasController.Index)" asp-route-ordenador="@ViewData["UCOrdenador"]" asp-route-filtroUCAtual="@ViewData["UCFiltroAtual"]">
+                    @nameof(Usina.UC)
+                </a>
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.UC)
+                @nameof(Usina.Ativo)
             </th>
-            <th></th>
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Ativo)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Fornecedor)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.UC)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
-        </tr>
-}
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Fornecedor)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.UC)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Ativo)
+                </td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.Id">Editar</a> |
+                    <a asp-action="Delete" asp-route-id="@item.Id">Apagar</a>
+                </td>
+            </tr>
+        }
     </tbody>
 </table>
+
+@{
+    var botaoAnteriorDesativado = !Model.TemPaginaAnterior ? "disabled" : string.Empty;
+    var botaoProximoDesativado = !Model.TemProximaPagina ? "disabled" : string.Empty;
+}
+
+<select name="tamanhoPorPagina" asp-items="@((List<SelectListItem>)ViewData["ListaTamanhosPaginas"])"></select>
+
+<a asp-action="Index"
+   asp-route-ordenador="@ViewData["OrdenadorAtual"]"
+   asp-route-paginaAtual="@(Model.PaginaAtual - 1)"
+   asp-route-filtroFornecedorAtual="@ViewData["FornecedorFiltroAtual"]"
+   asp-route-filtroUCAtual="@ViewData["UCFiltroAtual"]"
+   asp-route-filtroAtivoAtual="@ViewData["AtivoFiltroAtual"]"
+   class="btn btn-default @botaoAnteriorDesativado" style="background-color: #5f9fe4">
+    <
+</a>
+
+<a asp-action="Index"
+   asp-route-ordenador="@ViewData["OrdenadorAtual"]"
+   asp-route-paginaAtual="@(Model.PaginaAtual + 1)"
+   asp-route-filtroFornecedorAtual="@ViewData["FornecedorFiltroAtual"]"
+   asp-route-filtroUCAtual="@ViewData["UCFiltroAtual"]"
+   asp-route-filtroAtivoAtual="@ViewData["AtivoFiltroAtual"]"
+   class="btn btn-default @botaoProximoDesativado" style="background-color: #5f9fe4">
+    >
+</a>

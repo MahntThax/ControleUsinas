@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using ControleUsinas.Helpers;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace ControleUsinas.Models
 {
@@ -17,10 +14,10 @@ namespace ControleUsinas.Models
 
         public bool Ativo { get; set; }
 
-        [Required]
+        [RequiredHelper]
         public string Fornecedor { get; set; }
 
-        [Required]
+        [RequiredHelper]
         [Display(Name = "UC da usina")]
         public string UC { get; set; }
     }

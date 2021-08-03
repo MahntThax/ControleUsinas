@@ -1,9 +1,12 @@
 ﻿using ControleUsinas.Data;
 using ControleUsinas.Models;
+using ControleUsinas.Helpers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Collections.Generic;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace ControleUsinas
 {
@@ -14,32 +17,119 @@ namespace ControleUsinas
         public UsinasController(DbContexto context) => this._context = context;
 
         // GET: Usinas
-        public async Task<IActionResult> Index() => this.View(await this._context.Usinas.ToListAsync());
-
-        // GET: Usinas/Details/5
-        public async Task<IActionResult> Details(int? id)
+        public IActionResult Index(
+            string ordenador,
+            string filtroFornecedor,
+            string filtroFornecedorAtual,
+            string filtroUC,
+            string filtroUCAtual,
+            string filtroAtivo,
+            string filtroAtivoAtual,
+            int paginaAtual,
+            int tamanhoPorPagina)
         {
-            if (id == null)
+            this.ViewData["FornecedorOrdenador"] = string.IsNullOrEmpty(ordenador) ? "fornecedor_desc" : string.Empty;
+            this.ViewData["UCOrdenador"] = ordenador == "UC" ? "UC_desc" : "UC";
+            this.ViewData["OrdenadorAtual"] = ordenador;
+            this.ViewData["FornecedorFiltroAtual"] = filtroFornecedor;
+            this.ViewData["UCFiltroAtual"] = filtroUC;
+            this.ViewData["AtivoFiltroAtual"] = filtroAtivo;
+
+            var listaFiltroAtivo = new List<SelectListItem>
             {
-                return this.NotFound();
+                new SelectListItem { Value = "todos", Text = "Todos", Selected = false },
+                new SelectListItem { Value = "sim", Text = "Sim", Selected = false },
+                new SelectListItem { Value = "nao", Text = "Não", Selected = false },
+            };
+            var listaTamanhosPaginas = new List<SelectListItem>
+            {
+                new SelectListItem { Value = "10", Text = "10", Selected = false },
+                new SelectListItem { Value = "20", Text = "20", Selected = false },
+                new SelectListItem { Value = "30", Text = "30", Selected = false },
+            };
+
+            if (tamanhoPorPagina == 0)
+            {
+                tamanhoPorPagina = 10;
+            }
+            if (paginaAtual == 0)
+            {
+                paginaAtual = 1;
             }
 
-            var usina = await this._context.Usinas
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (usina == null)
+            listaTamanhosPaginas.First(i => i.Value.Equals(tamanhoPorPagina.ToString())).Selected = true;
+            this.ViewData["ListaTamanhosPaginas"] = listaTamanhosPaginas;
+
+            var usinas = this._context.Usinas.AsQueryable();
+
+            if (!(filtroFornecedor is null) || !(filtroUC is null) || !(filtroAtivo is null))
             {
-                return this.NotFound();
+                paginaAtual = 1;
+            }
+            else
+            {
+                filtroAtivo = filtroAtivoAtual;
+                filtroFornecedor = filtroFornecedorAtual;
+                filtroUC = filtroUCAtual;
             }
 
-            return this.View(usina);
+            if (!string.IsNullOrEmpty(filtroFornecedor))
+            {
+                usinas = usinas.Where(
+                    u => u.Fornecedor.Contains(filtroFornecedor));
+            }
+
+            if (!string.IsNullOrEmpty(filtroUC))
+            {
+                usinas = usinas.Where(
+                    u => u.Fornecedor.Contains(filtroUC));
+            }
+
+            if (!string.IsNullOrEmpty(filtroAtivo))
+            {
+                listaFiltroAtivo.First(i => i.Value.Equals(filtroAtivo)).Selected = true;
+
+                switch (filtroAtivo)
+                {
+                    case "sim":
+                        usinas = usinas.Where(u => u.Ativo);
+                        break;
+                    case "nao":
+                        usinas = usinas.Where(u => !u.Ativo);
+                        break;
+                    default:
+                        break;
+                }
+            }
+            else
+            {
+                listaFiltroAtivo[0].Selected = true;
+            }
+            this.ViewData["ListaFiltroAtivo"] = listaFiltroAtivo.ToList();
+
+            switch (ordenador)
+            {
+                case "fornecedor_desc":
+                    usinas = usinas.OrderByDescending(u => u.Fornecedor);
+                    break;
+                case "UC_desc":
+                    usinas = usinas.OrderByDescending(u => u.UC);
+                    break;
+                case "UC":
+                    usinas = usinas.OrderBy(u => u.UC);
+                    break;
+                default:
+                    usinas = usinas.OrderBy(u => u.Fornecedor);
+                    break;
+            }
+
+            return this.View(PagingHelper<Usina>.CriaPaginacao(usinas, paginaAtual, tamanhoPorPagina));
         }
 
         // GET: Usinas/Create
         public IActionResult Create() => this.View();
 
         // POST: Usinas/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Ativo,Fornecedor,UC")] Usina usina)
@@ -78,8 +168,6 @@ namespace ControleUsinas
         }
 
         // POST: Usinas/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,Ativo,Fornecedor,UC")] Usina usina)
